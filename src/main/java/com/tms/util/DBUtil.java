@@ -4,20 +4,26 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DBUtil {
-	private static final String URL = "jdbc:mysql://localhost:33601/tourism_db";
-	private static final String USER = "root";
-	private static final String PASS = "root";
-	static {
-	try {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		} 
-	catch (ClassNotFoundException e) {
-		e.printStackTrace();
-		}
-	}
 
-	public static Connection getConnection() throws Exception {
-		
-		return DriverManager.getConnection(URL, USER, PASS);
-		}
-	}
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Connection getConnection() throws Exception {
+
+        String dbUrl = System.getenv("DATABASE_URL");
+
+        if (dbUrl == null) {
+            dbUrl = "jdbc:mysql://localhost:33601/tourism_db";
+            return DriverManager.getConnection(dbUrl, "root", "root");
+        }
+
+        dbUrl = dbUrl.replace("mysql://", "jdbc:mysql://");
+
+        return DriverManager.getConnection(dbUrl);
+    }
+}
